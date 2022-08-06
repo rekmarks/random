@@ -1,0 +1,90 @@
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script src="https://gw.alipayobjects.com/os/lib/antv/g6/4.6.18/dist/g6.min.js"></script>
+  <script src="./graph.js"></script>
+</head>
+
+<body>
+  <div id="graph"></div>
+
+  <script>
+    const graphData = {
+      nodes: Object.keys(rawGraph).map(name => ({ id: name, label: name })),
+      edges: Object.entries(rawGraph)
+        .filter(([_name, dependencies]) => dependencies.length > 0)
+        .reduce((links, [name, dependencies]) => {
+          dependencies.forEach((dependency) => links.push({
+            source: name,
+            target: dependency,
+            style: { endArrow: true },
+          }))
+          return links
+        }, [])
+    }
+
+    // const data = {
+    //   nodes: [
+    //     {
+    //       id: "node1",
+    //       label: "Circle1",
+    //       x: 150,
+    //       y: 150
+    //     },
+    //     {
+    //       id: "node2",
+    //       label: "Circle2",
+    //       x: 400,
+    //       y: 150
+    //     }
+    //   ],
+    //   edges: [
+    //     {
+    //       source: "node1",
+    //       target: "node2"
+    //     }
+    //   ]
+    // };
+
+    // const graph = new G6.TreeGraph({
+    const graph = new G6.Graph({
+      container: "graph",
+      width: 2000,
+      height: 2000,
+      layout: {
+        type: 'dagre',
+        rankdir: 'LR',
+        nodesep: 10,
+        ranksep: 20,
+      },
+      // layout: {
+      //   direction: 'LR',
+      //   type: 'dendrogram',
+      // },
+      defaultNode: {
+        shape: "circle",
+        // size: [30],
+        // color: "#5B8FF9",
+        // style: {
+        //   fill: "#9EC9FF",
+        //   lineWidth: 3
+        // },
+        // labelCfg: {
+        //   style: {
+        //     fill: "#fff",
+        //     fontSize: 20
+        //   }
+        // }
+      },
+      defaultEdge: {
+        style: {
+          stroke: "#000000",
+          lineWidth: 1,
+        }
+      }
+    });
+
+    graph.data(graphData);
+    graph.render();
+  </script>
+</body>

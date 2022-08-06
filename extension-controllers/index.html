@@ -1,0 +1,103 @@
+<head>
+  <meta charset="utf-8">
+  <title>MetaMask Extension Controllers Dependency Graph</title>
+
+  <style> body { margin: 0; } </style>
+
+  <script src="https://unpkg.com/force-graph"></script>
+  <script src="https://unpkg.com/dat.gui"></script>
+  <script src="https://unpkg.com/d3-quadtree"></script>
+  <script src="https://unpkg.com/d3-force"></script>
+  <script src="./graph.js"></script>
+</head>
+
+<body>
+  <div id="graph"></div>
+
+  <script>
+    const graphData = {
+      nodes: Object.keys(rawGraph).map(name => ({ id: name, name })),
+      links: Object.entries(rawGraph)
+        .filter(([_name, dependencies]) => dependencies.length > 0)
+        .reduce((links, [name, dependencies]) => {
+          dependencies.forEach((dependency) => links.push({
+            source: name,
+            target: dependency,
+          }))
+          return links
+        }, [])
+    }
+
+    console.log('Number of controllers:', graphData.nodes.length);
+
+    // controls
+    const controls = { 'DAG Orientation': 'lr'};
+    const gui = new dat.GUI();
+    gui.add(controls, 'DAG Orientation', ['lr', 'td', 'radialout', null])
+      .onChange(orientation => graph && graph.dagMode(orientation));
+
+    const graph = ForceGraph()
+      .backgroundColor('#101020')
+      .linkColor(() => 'rgba(255,255,255,0.2)')
+      .dagMode('lr')
+      .dagLevelDistance(300)
+      .linkCurvature(d =>
+        0.07 * // max curvature
+        // curve outwards from source, using gradual straightening within a margin of a few px
+        (['td', 'bu'].includes(graph.dagMode())
+          ? Math.max(-1, Math.min(1, (d.source.x - d.target.x) / 25)) :
+          ['lr', 'rl'].includes(graph.dagMode())
+            ? Math.max(-1, Math.min(1, (d.target.y - d.source.y) / 25))
+            : ['radialout', 'radialin'].includes(graph.dagMode()) ? 0 : 1
+        )
+      )
+      .nodeCanvasObject((node, ctx) => {
+        const label = node.id;
+        const fontSize = 15;
+        ctx.font = `${fontSize}px Sans-Serif`;
+        const textWidth = ctx.measureText(label).width;
+        const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'lightsteelblue';
+        ctx.fillText(label, node.x, node.y);
+
+        node.__bckgDimensions = bckgDimensions; // to re-use in nodePointerAreaPaint
+      })
+      .nodePointerAreaPaint((node, color, ctx) => {
+        ctx.fillStyle = color;
+        const bckgDimensions = node.__bckgDimensions;
+        bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+      })
+      .nodeLabel(({ id }) => {
+        const dependents = graphData.links
+          .filter(({ target }) => target.id === id)
+          .map(({ source }) => source.id);
+        const hasDependents = dependents.length > 0;
+
+        const dependencies = rawGraph[id];
+        const hasDependencies = dependencies.length > 0;
+
+        return `
+          ${id}
+          ${hasDependencies || hasDependents ? '<br/><br/>' : ''}
+          ${hasDependents ? `Dependents (${dependents.length}):<br/>${dependents.join('<br/>')}` : ''}
+          ${hasDependencies ? `${hasDependents ? '<br/><br/>' : '' }Dependencies (${dependencies.length}):<br/>${dependencies.join('<br/>')}` : ''}
+        `;
+      })
+      .onNodeClick((node, event) => {
+        console.log('CLICK', node, event)
+      })
+      .d3Force('collide', d3.forceCollide(13))
+      .d3AlphaDecay(0.02)
+      .d3VelocityDecay(0.3);
+
+    graph(document.getElementById('graph'))
+      .graphData(graphData)
+      .linkDirectionalArrowLength(6);
+  </script>
+</body>

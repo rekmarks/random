@@ -1,2 +1,4 @@
-# random
-Random stuff without reason for hosting on GitHub Pages.
+# rekmarks/random
+
+Random stuff for hosting on GitHub Pages.
+See https://rekmarks.github.io/random.

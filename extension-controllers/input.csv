@@ -1,0 +1,33 @@
+FIRST Controller,Dependencies,Number of Dependents,Possible order (controllers with same order can be loaded in any sequence)
+KeyringController,-,4,3
+AddressBookController,-,1,5
+ApprovalController,-,0,-
+CurrencyRateController,NetworkController,2,4
+PhishingController,-,0,-
+AnnouncementController,-,0,-
+GasFeeController,NetworkController,1,5
+TokenListController,NetworkController,1,5
+TokensController,"PreferencesController, NetworkController",3,6
+TokenRatesController,"TokensController, CurrencyRateController, NetworkController",1,5
+CollectiblesController,"CurrencyRateController, NetworkController, AssetsContractController",1,5
+AssetsContractController,"PreferencesController, NetworkController",4,3
+CollectibleDetectionController,"CollectiblesController, PreferencesController, NetworkController, AssetsContractController",0,-
+PermissionController,"KeyringController, ApprovalController",0,-
+SubjectMetadataController,-,0,-
+RateLimitController,-,0,-
+NotificationController,-,0,-
+SmartTransactionsController,"NetworkController, MetaMetricsController, TransactionController",0,-
+EnsController,NetworkController,0,
+NetworkController,-,17,1
+PreferencesController,NetworkController,10,2
+AppStateController,PreferencesController,0,-
+CachedBalancesController,NetworkController,0,-
+AlertController,PreferencesController,0,-
+OnboardingController,-,0,-
+ThreeBoxController,"PreferencesController, AddressBookController, KeyringController, MetaMetricsController",0,-
+IncomingTransactionsController,"PreferencesController, NetworkController",0,-
+TransactionController,"PreferencesController, NetworkController, KeyringController, MetaMetricsController, AssetsContractController",2,4
+DetectTokensController,"PreferencesController, NetworkController, TokensController, AssetsContractController, KeyringController, MetaMetricsController, TokenListController",0,-
+SwapsController,"NetworkController, TokenRatesController, TransactionController, GasFeeController",0,-
+MetaMetricsController,"PreferencesController, NetworkController",4,3
+PermissionLogController,-,0,-
