@@ -16,7 +16,7 @@
 
   <script>
     const graphData = {
-      nodes: Object.keys(rawGraph).map(name => ({ id: name, name })),
+      nodes: Object.keys(rawGraph).sort().map(name => ({ id: name, name })),
       links: Object.entries(rawGraph)
         .filter(([_name, dependencies]) => dependencies.length > 0)
         .reduce((links, [name, dependencies]) => {
@@ -76,10 +76,11 @@
       .nodeLabel(({ id }) => {
         const dependents = graphData.links
           .filter(({ target }) => target.id === id)
-          .map(({ source }) => source.id);
+          .map(({ source }) => source.id)
+          .sort();
         const hasDependents = dependents.length > 0;
 
-        const dependencies = rawGraph[id];
+        const dependencies = rawGraph[id].sort();
         const hasDependencies = dependencies.length > 0;
 
         return `
